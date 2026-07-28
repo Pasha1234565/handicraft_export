@@ -5,7 +5,13 @@ from frappe.desk.doctype.workspace.workspace import Workspace
 
 
 def execute():
-	"""Create the Handicraft Export Desk workspace."""
+	"""Create the Handicraft Export Desk workspace.
+
+	This patch is resilient — if linked entities (Module Def, DocTypes, Reports)
+
+don't exist yet at migration time, it logs a warning and skips rather than
+	crashing the entire migrate.
+	"""
 	workspace_name = "Handicraft Export Desk"
 
 	if frappe.db.exists("Workspace", workspace_name):
@@ -156,5 +162,16 @@ def execute():
 		],
 	})
 
-	workspace.insert(ignore_permissions=True)
-	frappe.db.commit()
+	try:
+		workspace.insert(ignore_permissions=True)
+		frappe.db.commit()
+	except frappe.LinkValidationError as e:
+		frappe.log_error(
+			message=f"Workspace '{workspace_name}' could not be created: {e}",
+			title="Workspace Creation Skipped",
+		)
+		frappe.db.rollback()
+		frappe.msgprint(
+			f"Workspace '{workspace_name}' will be created after all DocTypes/Reports are synced. "
+			"Run migration again after installing all apps."
+		)
