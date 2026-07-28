@@ -1,0 +1,22 @@
+{
+ "channel": "Email",
+ "condition": "doc.certificate_of_origin_status != \"Issued\"",
+ "date_changed": "estimated_ship_date",
+ "days_in_advance": 3,
+ "docstatus": 1,
+ "doctype": "Export Order",
+ "document_type": "Export Order",
+ "enabled": 1,
+ "event": "Days Before",
+ "is_standard": 1,
+ "message": "<h3>Document Readiness Alert</h3>\n<p>Export Order <strong>{{ doc.name }}</strong> is estimated to ship in 3 days.</p>\n<p>The <strong>Certificate of Origin</strong> has not been issued yet.</p>\n<p><strong>Buyer:</strong> {{ doc.buyer_country }}</p>\n<p><strong>Container:</strong> {{ doc.container_estimate }}</p>\n<p><strong>Ship Date:</strong> {{ doc.estimated_ship_date }}</p>",
+ "module": "Handicraft Export",
+ "name": "Document Missing Near Shipment",
+ "recipients": [
+  {
+   "receiver_by_role": "Export Coordinator"
+  }
+ ],
+ "send_system_notification": 0,
+ "subject": "{{ doc.name }} — Documents Missing Near Shipment"
+}

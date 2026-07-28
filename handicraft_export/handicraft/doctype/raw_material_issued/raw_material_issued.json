@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "material_item",
+  "qty_issued",
+  "uom"
+ ],
+ "fields": [
+  {
+   "fieldname": "material_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Material Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "qty_issued",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Issued",
+   "reqd": 1
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "options": "UOM"
+  }
+ ],
+ "istable": 1,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Raw Material Issued",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

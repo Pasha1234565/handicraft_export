@@ -1,0 +1,144 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:AJC-{YYYY}-{#####}",
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "export_order",
+  "artisan",
+  "piece_rate_inr",
+  "column_break_3",
+  "amended_from",
+  "section_quantity",
+  "qty_ordered",
+  "qty_received",
+  "qty_rejected",
+  "section_raw_materials",
+  "raw_materials_issued"
+ ],
+ "fields": [
+  {
+   "fieldname": "export_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Export Order",
+   "options": "Export Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "artisan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artisan",
+   "options": "Artisan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "piece_rate_inr",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Piece Rate (INR)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Artisan Job Card",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_quantity",
+   "fieldtype": "Section Break",
+   "label": "Quantities"
+  },
+  {
+   "fieldname": "qty_ordered",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty Ordered",
+   "reqd": 1
+  },
+  {
+   "fieldname": "qty_received",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty Received"
+  },
+  {
+   "fieldname": "qty_rejected",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty Rejected"
+  },
+  {
+   "fieldname": "section_raw_materials",
+   "fieldtype": "Section Break",
+   "label": "Raw Materials Issued"
+  },
+  {
+   "fieldname": "raw_materials_issued",
+   "fieldtype": "Table",
+   "label": "Raw Materials Issued",
+   "options": "Raw Material Issued"
+  }
+ ],
+ "is_submittable": 1,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Artisan Job Card",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [   {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Artisan Liaison",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Export Coordinator",
+   "share": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,9 @@
+{
+ "doctype": "Report",
+ "name": "Document Readiness Dashboard",
+ "report_type": "Query Report",
+ "module": "Handicraft Export",
+ "is_standard": "Yes",
+ "disabled": 0,
+ "query": "SELECT\n  eo.name AS `Export Order`,\n  eo.buyer_country AS `Buyer Country`,\n  eo.estimated_ship_date AS `Estimated Ship Date`,\n  eo.certificate_of_origin_status AS `COO Status`,\n  CASE\n    WHEN eo.certificate_of_origin_status != 'Issued' AND eo.estimated_ship_date IS NOT NULL\n         AND DATEDIFF(eo.estimated_ship_date, CURDATE()) <= 3\n    THEN '⚠ Missing Documents'\n    ELSE 'OK'\n  END AS `Readiness Flag`,\n  IFNULL(eo.total_cbm, 0) AS `Total CBM`,\n  eo.container_estimate AS `Container Estimate`\nFROM `tabExport Order` eo\nWHERE eo.docstatus = 1\nORDER BY eo.estimated_ship_date ASC"
+}

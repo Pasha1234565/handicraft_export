@@ -1,0 +1,139 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:EXPORD-{YYYY}-{#####}",
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "linked_sales_order",
+  "buyer_country",
+  "incoterm",
+  "port_of_discharge",
+  "column_break_4",
+  "certificate_of_origin_status",
+  "estimated_ship_date",
+  "amended_from",
+  "section_packing",
+  "export_packing_list",
+  "section_shipping",
+  "total_cbm",
+  "container_estimate"
+ ],
+ "fields": [
+  {
+   "fieldname": "linked_sales_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Linked Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "buyer_country",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Buyer Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "incoterm",
+   "fieldtype": "Select",
+   "label": "Incoterm",
+   "options": "EXW\nFOB\nCIF\nDAP\nDDP"
+  },
+  {
+   "fieldname": "port_of_discharge",
+   "fieldtype": "Data",
+   "label": "Port of Discharge"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "certificate_of_origin_status",
+   "fieldtype": "Select",
+   "label": "Certificate of Origin Status",
+   "options": "Not Started\nApplied\nIssued"
+  },
+  {
+   "fieldname": "estimated_ship_date",
+   "fieldtype": "Date",
+   "label": "Estimated Ship Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Export Order",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_packing",
+   "fieldtype": "Section Break",
+   "label": "Packing List"
+  },
+  {
+   "fieldname": "export_packing_list",
+   "fieldtype": "Table",
+   "label": "Export Packing List",
+   "options": "Export Packing List"
+  },
+  {
+   "fieldname": "section_shipping",
+   "fieldtype": "Section Break",
+   "label": "Shipping Details"
+  },
+  {
+   "fieldname": "total_cbm",
+   "fieldtype": "Float",
+   "label": "Total CBM",
+   "precision": "4",
+   "read_only": 1
+  },
+  {
+   "fieldname": "container_estimate",
+   "fieldtype": "Data",
+   "label": "Container Estimate",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Export Order",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [   {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Export Coordinator",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
+

@@ -1,0 +1,13 @@
+*.pyc
+*.pyo
+__pycache__/
+.DS_Store
+*.egg-info/
+*.egg
+dist/
+build/
+*.log
+*.swp
+.sass-cache/
+*.orig
+node_modules/

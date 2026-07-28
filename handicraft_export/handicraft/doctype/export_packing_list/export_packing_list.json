@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "carton_number",
+  "item",
+  "qty_inside",
+  "net_weight",
+  "gross_weight",
+  "cbm"
+ ],
+ "fields": [
+  {
+   "fieldname": "carton_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Carton Number"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "qty_inside",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty Inside"
+  },
+  {
+   "fieldname": "net_weight",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Net Weight"
+  },
+  {
+   "fieldname": "gross_weight",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Gross Weight"
+  },
+  {
+   "fieldname": "cbm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "CBM"
+  }
+ ],
+ "istable": 1,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Export Packing List",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,9 @@
+include handicraft_export/handicraft_export/doctype/*/*.json
+include handicraft_export/handicraft_export/doctype/*/*.js
+include handicraft_export/handicraft_export/print_format/*/*.json
+include handicraft_export/handicraft_export/print_format/*/*.html
+include handicraft_export/handicraft_export/report/*/*.json
+include handicraft_export/handicraft_export/report/*/*.js
+include handicraft_export/handicraft_export/report/*/*.py
+include handicraft_export/handicraft_export/notification/*/*.json
+include handicraft_export/handicraft_export/workspace/*/*.json

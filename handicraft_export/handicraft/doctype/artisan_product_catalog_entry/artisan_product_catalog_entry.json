@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PC-{product_name}-{#####}",
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "product_name",
+  "item_code",
+  "artisan",
+  "section_catalog_images",
+  "product_images",
+  "section_production",
+  "production_time_days",
+  "min_order_qty",
+  "column_break_9",
+  "section_cbm",
+  "length_cm",
+  "width_cm",
+  "height_cm",
+  "weight_per_unit_kg",
+  "units_per_carton",
+  "calculated_cbm"
+ ],
+ "fields": [
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "artisan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artisan",
+   "options": "Artisan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_catalog_images",
+   "fieldtype": "Section Break",
+   "label": "Catalog Images"
+  },
+  {
+   "fieldname": "product_images",
+   "fieldtype": "Table",
+   "label": "Product Images",
+   "options": "Catalog Image"
+  },
+  {
+   "fieldname": "section_production",
+   "fieldtype": "Section Break",
+   "label": "Production Details"
+  },
+  {
+   "fieldname": "production_time_days",
+   "fieldtype": "Int",
+   "label": "Production Time (Days)"
+  },
+  {
+   "fieldname": "min_order_qty",
+   "fieldtype": "Int",
+   "label": "Min Order Qty"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_cbm",
+   "fieldtype": "Section Break",
+   "label": "CBM Data"
+  },
+  {
+   "fieldname": "length_cm",
+   "fieldtype": "Float",
+   "label": "Length (cm)"
+  },
+  {
+   "fieldname": "width_cm",
+   "fieldtype": "Float",
+   "label": "Width (cm)"
+  },
+  {
+   "fieldname": "height_cm",
+   "fieldtype": "Float",
+   "label": "Height (cm)"
+  },
+  {
+   "fieldname": "weight_per_unit_kg",
+   "fieldtype": "Float",
+   "label": "Weight per Unit (kg)"
+  },
+  {
+   "fieldname": "units_per_carton",
+   "fieldtype": "Int",
+   "label": "Units per Carton"
+  },
+  {
+   "fieldname": "calculated_cbm",
+   "fieldtype": "Float",
+   "label": "Calculated CBM (per unit)",
+   "precision": "6",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Artisan Product Catalog Entry",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Artisan Liaison",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Export Coordinator",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

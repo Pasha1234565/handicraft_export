@@ -1,0 +1,206 @@
+<style>
+	@page {
+		size: A4 landscape;
+		margin: 15mm;
+	}
+	body {
+		font-family: 'Helvetica Neue', Arial, sans-serif;
+		color: #333;
+	}
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		border-bottom: 3px solid #e67e22;
+		padding-bottom: 15px;
+		margin-bottom: 20px;
+	}
+	.header-left h1 {
+		font-size: 24px;
+		color: #e67e22;
+		margin: 0 0 5px 0;
+	}
+	.header-left p {
+		margin: 2px 0;
+		color: #666;
+		font-size: 12px;
+	}
+	.header-right {
+		text-align: right;
+		font-size: 12px;
+		color: #666;
+	}
+	.header-right strong {
+		color: #333;
+	}
+	.offer-meta {
+		display: flex;
+		gap: 30px;
+		margin-bottom: 20px;
+		padding: 10px 15px;
+		background: #fef9f4;
+		border-radius: 6px;
+		font-size: 12px;
+	}
+	.offer-meta .field {
+		display: flex;
+		flex-direction: column;
+	}
+	.offer-meta .field .label {
+		font-weight: bold;
+		color: #e67e22;
+		font-size: 10px;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+	.product-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+		padding: 0;
+	}
+	.product-card {
+		border: 1px solid #e8e8e8;
+		border-radius: 8px;
+		overflow: hidden;
+		page-break-inside: avoid;
+		background: #fff;
+		box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+	}
+	.product-card .image-wrap {
+		height: 180px;
+		background: #f9f9f9;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		border-bottom: 1px solid #eee;
+	}
+	.product-card .image-wrap img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+	}
+	.product-card .product-info {
+		padding: 10px 12px;
+	}
+	.product-card .product-info .name {
+		font-size: 13px;
+		font-weight: 600;
+		color: #222;
+		margin-bottom: 6px;
+	}
+	.product-card .product-info .details {
+		font-size: 11px;
+		color: #666;
+		line-height: 1.5;
+	}
+	.product-card .product-info .price {
+		margin-top: 8px;
+		font-size: 15px;
+		font-weight: 700;
+		color: #e67e22;
+	}
+	.product-grid.empty {
+		display: block;
+		text-align: center;
+		padding: 40px;
+		color: #999;
+	}
+	.footer {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		text-align: center;
+		font-size: 10px;
+		color: #aaa;
+		padding: 10px 0;
+		border-top: 1px solid #eee;
+	}
+</style>
+
+<div class="header">
+	<div class="header-left">
+		<h1>Visual Offer Sheet</h1>
+		<p><strong>{{ doc.name }}</strong></p>
+		<p>Handicraft Export &mdash; Premium Handcrafted Products</p>
+	</div>
+	<div class="header-right">
+		<p><strong>Date:</strong> {{ frappe.utils.format_date(doc.creation.date(), "medium") }}</p>
+		<p><strong>Valid Until:</strong> {{ frappe.utils.format_date(doc.valid_until, "medium") if doc.valid_until else "—" }}</p>
+	</div>
+</div>
+
+<div class="offer-meta">
+	<div class="field">
+		<span class="label">Buyer</span>
+		<span>{{ doc.buyer }}</span>
+	</div>
+	<div class="field">
+		<span class="label">Email</span>
+		<span>{{ doc.buyer_email or "—" }}</span>
+	</div>
+	<div class="field">
+		<span class="label">Incoterm</span>
+		<span>{{ doc.incoterm or "—" }}</span>
+	</div>
+	<div class="field">
+		<span class="label">Total Amount</span>
+		<span><strong>${{ "{:,.2f}".format(doc.total_amount) if doc.total_amount else "0.00" }}</strong></span>
+	</div>
+</div>
+
+{% if doc.offer_sheet_items %}
+<div class="product-grid">
+	{% for item in doc.offer_sheet_items %}
+	{% set catalog = frappe.get_doc("Artisan Product Catalog Entry", item.product_catalog_entry) if item.product_catalog_entry else None %}
+	{% set primary_img = None %}
+	{% if catalog and catalog.product_images %}
+		{% for img in catalog.product_images %}
+			{% if img.is_primary %}
+				{% set primary_img = img.image_url %}
+			{% endif %}
+		{% endfor %}
+		{% if not primary_img and catalog.product_images[0] %}
+			{% set primary_img = catalog.product_images[0].image_url %}
+		{% endif %}
+	{% endif %}
+	<div class="product-card">
+		<div class="image-wrap">
+			{% if primary_img %}
+			<img src="{{ primary_img }}" alt="{{ item.product_name }}">
+			{% else %}
+			<span style="color:#ccc;font-size:12px;">No Image</span>
+			{% endif %}
+		</div>
+		<div class="product-info">
+			<div class="name">{{ item.product_name or "Product" }}</div>
+			<div class="details">
+				{% if catalog %}
+					{% if catalog.length_cm and catalog.width_cm and catalog.height_cm %}
+					<div>Dimensions: {{ catalog.length_cm }} × {{ catalog.width_cm }} × {{ catalog.height_cm }} cm</div>
+					{% endif %}
+					{% if catalog.min_order_qty %}
+					<div>MOQ: {{ catalog.min_order_qty }} pcs</div>
+					{% endif %}
+				{% endif %}
+				<div>Qty: {{ item.qty }} pcs</div>
+			</div>
+			<div class="price">${{ "{:,.2f}".format(item.quoted_price_usd) }} each</div>
+			<div style="font-size:12px;color:#888;margin-top:4px;">
+				Subtotal: <strong>${{ "{:,.2f}".format(item.amount) if item.amount else "0.00" }}</strong>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% else %}
+<div class="product-grid empty">
+	<p>No items in this Offer Sheet.</p>
+</div>
+{% endif %}
+
+<div class="footer">
+	Generated by Handicraft Export — {{ frappe.utils.now_datetime().strftime("%d-%b-%Y %H:%M") }}
+</div>

@@ -1,0 +1,19 @@
+{
+ "css": "",
+ "doc_type": "Visual Offer Sheet",
+ "disabled": 0,
+ "docstatus": 0,
+ "format_data": "[]",
+ "html": "{% include \"handicraft_export/handicraft/print_format/visual_offer_sheet/visual_offer_sheet.html\" %}",
+ "idx": 0,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Visual Offer Sheet",
+ "owner": "Administrator",
+ "print_format_builder": 0,
+ "print_format_type": "Jinja",
+ "raw_printing": 0,
+ "show_section_headings": 0,
+ "standard": "Yes"
+}

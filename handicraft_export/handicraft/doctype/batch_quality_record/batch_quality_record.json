@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:QC-{YYYY}-{#####}",
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "job_card",
+  "artisan",
+  "qc_status",
+  "column_break_3",
+  "qc_photos",
+  "section_notes",
+  "inspector_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "job_card",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Job Card",
+   "options": "Artisan Job Card",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job_card.artisan",
+   "fieldname": "artisan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artisan",
+   "options": "Artisan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qc_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "QC Status",
+   "options": "Pass\nRework\nFail",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qc_photos",
+   "fieldtype": "Attach Image",
+   "label": "QC Photos"
+  },
+  {
+   "fieldname": "section_notes",
+   "fieldtype": "Section Break",
+   "label": "Inspector Notes"
+  },
+  {
+   "fieldname": "inspector_notes",
+   "fieldtype": "Text",
+   "label": "Inspector Notes"
+  }
+ ],
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Batch Quality Record",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Artisan Liaison",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Export Coordinator",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

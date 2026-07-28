@@ -1,0 +1,20 @@
+{
+ "channel": "System Notification",
+ "condition": "doc.qc_status in [\"Fail\", \"Rework\"]",
+ "docstatus": 1,
+ "doctype": "Batch Quality Record",
+ "document_type": "Batch Quality Record",
+ "enabled": 1,
+ "event": "After Save",
+ "is_standard": 1,
+ "message": "<h3>QC Alert</h3>\n<p>Batch Quality Record <strong>{{ doc.name }}</strong> has been marked as <strong>{{ doc.qc_status }}</strong>.</p>\n<p><strong>Job Card:</strong> {{ doc.job_card }}</p>\n<p><strong>Artisan:</strong> {{ doc.artisan }}</p>\n<p><strong>Inspector Notes:</strong> {{ doc.inspector_notes }}</p>",
+ "module": "Handicraft Export",
+ "name": "QC Failed / Rework Needed",
+ "recipients": [
+  {
+   "receiver_by_role": "Artisan Liaison"
+  }
+ ],
+ "send_system_notification": 1,
+ "subject": "QC {{ doc.qc_status }} — {{ doc.name }}"
+}

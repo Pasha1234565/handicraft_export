@@ -1,0 +1,124 @@
+<style>
+	@page { size: A4; margin: 15mm; }
+	body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #333; font-size: 11px; }
+	h1 { font-size: 20px; color: #222; margin: 0 0 5px 0; }
+	h2 { font-size: 14px; color: #555; font-weight: normal; border-bottom: 2px solid #e67e22; padding-bottom: 6px; margin: 20px 0 10px 0; }
+	.header { display: flex; justify-content: space-between; border-bottom: 3px solid #e67e22; padding-bottom: 12px; margin-bottom: 20px; }
+	.header-left { }
+	.header-left .subtitle { color: #888; font-size: 11px; }
+	.header-right { text-align: right; font-size: 11px; }
+	.invoice-meta { width: 100%; margin-bottom: 18px; border-collapse: collapse; }
+	.invoice-meta td { padding: 4px 8px; }
+	.invoice-meta td.label { font-weight: 600; color: #555; width: 140px; background: #f9f9f9; }
+	.items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+	.items-table th { background: #e67e22; color: #fff; font-size: 10px; text-transform: uppercase; padding: 8px 6px; text-align: left; }
+	.items-table td { padding: 6px; border-bottom: 1px solid #eee; }
+	.items-table tr:nth-child(even) td { background: #fafafa; }
+	.totals { margin-top: 15px; text-align: right; font-size: 11px; }
+	.totals .total-row { padding: 3px 0; }
+	.totals .grand-total { font-size: 15px; font-weight: 700; color: #e67e22; border-top: 2px solid #333; padding-top: 5px; margin-top: 5px; }
+	.footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 9px; color: #aaa; padding: 8px 0; border-top: 1px solid #eee; }
+	.badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+	.badge-issued { background: #d4edda; color: #155724; }
+	.badge-applied { background: #fff3cd; color: #856404; }
+	.badge-default { background: #f8f8f8; color: #666; }
+</style>
+
+<div class="header">
+	<div class="header-left">
+		<h1>COMMERCIAL INVOICE</h1>
+		<div class="subtitle">{{ doc.name }}</div>
+	</div>
+	<div class="header-right">
+		<p><strong>Date:</strong> {{ frappe.utils.format_date(doc.creation.date(), "medium") }}</p>
+		<p><strong>Incoterm:</strong> {{ doc.incoterm or "—" }}</p>
+	</div>
+</div>
+
+<table class="invoice-meta">
+	<tr>
+		<td class="label">Buyer Country</td>
+		<td>{{ doc.buyer_country }}</td>
+		<td class="label">Port of Discharge</td>
+		<td>{{ doc.port_of_discharge or "—" }}</td>
+	</tr>
+	<tr>
+		<td class="label">Linked Sales Order</td>
+		<td>{{ doc.linked_sales_order or "—" }}</td>
+		<td class="label">Container Estimate</td>
+		<td>{{ doc.container_estimate or "—" }}</td>
+	</tr>
+	<tr>
+		<td class="label">COO Status</td>
+		<td>
+			{% if doc.certificate_of_origin_status == "Issued" %}
+				<span class="badge badge-issued">{{ doc.certificate_of_origin_status }}</span>
+			{% elif doc.certificate_of_origin_status == "Applied" %}
+				<span class="badge badge-applied">{{ doc.certificate_of_origin_status }}</span>
+			{% else %}
+				<span class="badge badge-default">{{ doc.certificate_of_origin_status or "Not Started" }}</span>
+			{% endif %}
+		</td>
+		<td class="label">Total CBM</td>
+		<td>{{ "{:,.4f}".format(doc.total_cbm or 0) }}</td>
+	</tr>
+</table>
+
+{% if doc.export_packing_list %}
+<h2>Packing Summary &amp; HS Codes</h2>
+<table class="items-table">
+	<thead>
+		<tr>
+			<th>Carton #</th>
+			<th>Item</th>
+			<th>HS Code</th>
+			<th style="text-align:right;">Qty</th>
+			<th style="text-align:right;">Net Wt</th>
+			<th style="text-align:right;">Gross Wt</th>
+			<th style="text-align:right;">CBM</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% set total_qty = namespace(value=0) %}
+		{% set total_net = namespace(value=0.0) %}
+		{% set total_gross = namespace(value=0.0) %}
+		{% set total_cbm = namespace(value=0.0) %}
+		{% for pkg in doc.export_packing_list %}
+		{% set _ = total_qty.__setattr__('value', total_qty.value + (pkg.qty_inside or 0)) %}
+		{% set _ = total_net.__setattr__('value', total_net.value + (pkg.net_weight or 0)) %}
+		{% set _ = total_gross.__setattr__('value', total_gross.value + (pkg.gross_weight or 0)) %}
+		{% set _ = total_cbm.__setattr__('value', total_cbm.value + (pkg.cbm or 0)) %}
+		{% set hs_code = frappe.db.get_value("Item", pkg.item, "customs_tariff_number") if pkg.item else "" %}
+		<tr>
+			<td>{{ pkg.carton_number or "—" }}</td>
+			<td>{{ pkg.item or "—" }}</td>
+			<td>{{ hs_code or "—" }}</td>
+			<td style="text-align:right;">{{ pkg.qty_inside or 0 }}</td>
+			<td style="text-align:right;">{{ "{:,.2f}".format(pkg.net_weight or 0) }}</td>
+			<td style="text-align:right;">{{ "{:,.2f}".format(pkg.gross_weight or 0) }}</td>
+			<td style="text-align:right;">{{ "{:,.4f}".format(pkg.cbm or 0) }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	<tfoot>
+		<tr style="font-weight:600; border-top: 2px solid #e67e22;">
+			<td colspan="3"><strong>Totals</strong></td>
+			<td style="text-align:right;">{{ total_qty.value }}</td>
+			<td style="text-align:right;">{{ "{:,.2f}".format(total_net.value) }}</td>
+			<td style="text-align:right;">{{ "{:,.2f}".format(total_gross.value) }}</td>
+			<td style="text-align:right;">{{ "{:,.4f}".format(total_cbm.value) }}</td>
+		</tr>
+	</tfoot>
+</table>
+
+<div class="totals">
+	<div class="total-row"><strong>Total CBM:</strong> {{ "{:,.4f}".format(total_cbm.value) }}</div>
+	<div class="total-row"><strong>Container:</strong> {{ doc.container_estimate or "—" }}</div>
+</div>
+{% else %}
+<p style="color:#999; text-align:center; padding:20px;">No packing data available.</p>
+{% endif %}
+
+<div class="footer">
+	Generated by Handicraft Export — {{ frappe.utils.now_datetime().strftime("%d-%b-%Y %H:%M") }}
+</div>

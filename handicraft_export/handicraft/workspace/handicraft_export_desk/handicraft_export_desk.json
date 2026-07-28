@@ -1,0 +1,24 @@
+{
+ "charts": [
+  {
+   "chart_name": "Artisan Yield",
+   "label": "Artisan Yield"
+  }
+ ],
+ "content": "[{\"id\":\"jfx-0\",\"type\":\"header\",\"data\":{\"text\":\"Handicraft Export Desk\",\"level\":1}},{\"id\":\"jfx-1\",\"type\":\"number_card\",\"data\":{\"card\":\"Total CBM Shipping This Week\",\"card_name\":\"Total CBM Shipping This Week\",\"label\":\"Total CBM Shipping This Week\"}},{\"id\":\"jfx-2\",\"type\":\"number_card\",\"data\":{\"card\":\"Active Artisans (YTD)\",\"card_name\":\"Active Artisans (YTD)\",\"label\":\"Active Artisans (YTD)\"}},{\"id\":\"jfx-3\",\"type\":\"number_card\",\"data\":{\"card\":\"Pending Job Cards\",\"card_name\":\"Pending Job Cards\",\"label\":\"Pending Job Cards\"}},{\"id\":\"jfx-4\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Artisan Yield\",\"label\":\"Artisan Yield\"}},{\"id\":\"jfx-5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Visual Offer\",\"label\":\"New Visual Offer\",\"type\":\"DocType\",\"link_to\":\"Visual Offer Sheet\",\"doc_view\":\"New\",\"icon\":\"file-text\"}},{\"id\":\"jfx-6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Job Card\",\"label\":\"New Job Card\",\"type\":\"DocType\",\"link_to\":\"Artisan Job Card\",\"doc_view\":\"New\",\"icon\":\"task\"}},{\"id\":\"jfx-7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Log QC\",\"label\":\"Log QC\",\"type\":\"DocType\",\"link_to\":\"Batch Quality Record\",\"doc_view\":\"New\",\"icon\":\"check-circle\"}}]",
+ "creation": "2026-07-28 10:00:00",
+ "doc_type": "Workspace",
+ "doctype": "Workspace",
+ "icon": "package",
+ "is_standard": 1,
+ "label": "Handicraft Export Desk",
+ "links": [],
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Handicraft Export Desk",
+ "owner": "Administrator",
+ "sequence_id": 0,
+ "title": "Handicraft Export Desk",
+ "workspace_name": "Handicraft Export Desk"
+}

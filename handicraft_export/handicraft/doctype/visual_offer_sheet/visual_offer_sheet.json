@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:VOS-{buyer}-{YYYY}-{#####}",
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "buyer",
+  "buyer_email",
+  "incoterm",
+  "valid_until",
+  "column_break_4",
+  "amended_from",
+  "section_offer_items",
+  "offer_sheet_items",
+  "section_totals",
+  "total_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "buyer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Buyer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "buyer_email",
+   "fieldtype": "Data",
+   "label": "Buyer Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "incoterm",
+   "fieldtype": "Select",
+   "label": "Incoterm",
+   "options": "EXW\nFOB\nCIF\nDAP\nDDP"
+  },
+  {
+   "fieldname": "valid_until",
+   "fieldtype": "Date",
+   "label": "Valid Until"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Visual Offer Sheet",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_offer_items",
+   "fieldtype": "Section Break",
+   "label": "Offer Items"
+  },
+  {
+   "fieldname": "offer_sheet_items",
+   "fieldtype": "Table",
+   "label": "Offer Sheet Items",
+   "options": "Offer Sheet Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_totals",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount (USD)",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Visual Offer Sheet",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Export Coordinator",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

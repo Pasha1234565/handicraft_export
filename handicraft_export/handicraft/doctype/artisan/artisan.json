@@ -1,0 +1,120 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ART-{artisan_name}-{#####}",
+ "creation": "2026-07-28 10:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "artisan_name",
+  "artisan_cluster",
+  "primary_craft",
+  "linked_supplier",
+  "column_break_5",
+  "contact_email",
+  "contact_phone",
+  "address"
+ ],
+ "fields": [
+  {
+   "fieldname": "artisan_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Artisan Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "artisan_cluster",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artisan Cluster",
+   "options": "Artisan Cluster",
+   "reqd": 1
+  },
+  {
+   "fieldname": "primary_craft",
+   "fieldtype": "Link",
+   "label": "Primary Craft",
+   "options": "Item Group"
+  },
+  {
+   "fieldname": "linked_supplier",
+   "fieldtype": "Link",
+   "label": "Linked Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Artisan Product Catalog Entry",
+   "link_fieldname": "artisan"
+  },
+  {
+   "link_doctype": "Artisan Job Card",
+   "link_fieldname": "artisan"
+  }
+ ],
+ "modified": "2026-07-28 10:00:00",
+ "modified_by": "Administrator",
+ "module": "Handicraft Export",
+ "name": "Artisan",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Artisan Liaison",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Export Coordinator",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
