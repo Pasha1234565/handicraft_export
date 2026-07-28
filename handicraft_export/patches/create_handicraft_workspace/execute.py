@@ -18,11 +18,12 @@ def execute():
 		workspace.title = workspace_name
 		workspace.workspace_name = workspace_name
 		workspace.label = workspace_name
-		workspace.module = "Handicraft"
-		workspace.is_standard = 1
-		workspace.public = 1
-		workspace.icon = "package"
-		workspace.sequence_id = 1.0
+
+	# These must be set on BOTH new and existing workspaces
+	workspace.module = "Handicraft"
+	workspace.public = 1
+	workspace.icon = "package"
+	workspace.sequence_id = 1.0
 
 	# Clear previous dynamic children so we rebuild fresh
 	workspace.set("shortcuts", [])
