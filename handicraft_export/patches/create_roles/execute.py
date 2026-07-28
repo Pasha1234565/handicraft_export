@@ -24,8 +24,8 @@ def execute():
 			print(f"  🔐 Created Role: {role_name}")
 
 	# Grant read access to standard doctypes needed by the app.
-	# The Artisan Job Card child table (Raw Material Issued) has a Link
-	# to UOM, so all roles that submit Job Cards need UOM read permission.
+	# Uses direct SQL to avoid saving the DocType (which requires developer mode
+	# for standard DocTypes like UOM).
 	_grant_read_permission("UOM", ["Export Coordinator", "Artisan Liaison"])
 
 	frappe.db.commit()
@@ -34,38 +34,50 @@ def execute():
 
 
 def _grant_read_permission(doctype, roles):
-	"""Grant read permission on a DocType to specified roles.
+	"""Grant read permission on a standard DocType to specified roles.
 
-	Uses the proper frappe.get_doc().append().save() pattern to ensure
-	the child table relationship is correctly established.
+	Uses direct SQL to insert/update DocPerm records, avoiding the need to
+	save the DocType (which would fail in non-developer mode for standard DocTypes).
 	"""
 	if not frappe.db.exists("DocType", doctype):
 		print(f"  ⚠️  DocType {doctype} not found — skipping permission setup")
 		return
-
-	doc_type = frappe.get_doc("DocType", doctype)
 
 	for role_name in roles:
 		if not frappe.db.exists("Role", role_name):
 			continue
 
 		# Check if this role already has a permission entry
-		existing = False
-		for perm in doc_type.permissions:
-			if perm.role == role_name:
-				if not perm.read:
-					perm.read = 1
-					print(f"  🔑 Updated read permission on {doctype} for {role_name}")
-				else:
-					print(f"  ℹ️  Read permission already exists on {doctype} for {role_name}")
-				existing = True
-				break
-
-		if not existing:
-			doc_type.append("permissions", {
-				"role": role_name,
-				"read": 1,
-			})
+		existing = frappe.db.get_value(
+			"DocPerm",
+			{"parent": doctype, "parentfield": "permissions", "role": role_name},
+			"name",
+		)
+		if existing:
+			# Update existing DocPerm to grant read access
+			frappe.db.set_value("DocPerm", existing, "read", 1)
 			print(f"  🔑 Granted read permission on {doctype} for {role_name}")
+		else:
+			# Get next index for ordering
+			max_idx = frappe.db.sql("""
+				SELECT COALESCE(MAX(`idx`), 0) FROM `tabDocPerm`
+				WHERE `parent` = %s AND `parentfield` = 'permissions'
+			""", doctype)[0][0]
 
-	doc_type.save(ignore_permissions=True)
+			# Insert new DocPerm record directly
+			frappe.db.sql("""
+				INSERT INTO `tabDocPerm`
+				(`name`, `parent`, `parentfield`, `parenttype`,
+				 `role`, `read`, `idx`,
+				 `creation`, `modified`, `modified_by`, `owner`, `docstatus`)
+				VALUES
+				(%s, %s, 'permissions', 'DocType',
+				 %s, 1, %s,
+				 NOW(), NOW(), 'Administrator', 'Administrator', 0)
+			""", (
+				frappe.generate_hash(length=10),
+				doctype,
+				role_name,
+				max_idx + 1,
+			))
+			print(f"  🔑 Granted read permission on {doctype} for {role_name}")
