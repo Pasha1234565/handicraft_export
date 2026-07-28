@@ -2,7 +2,7 @@
  "doctype": "Report",
  "name": "Artisan Yield & Wastage",
  "report_type": "Script Report",
- "module": "Handicraft Export",
+ "module": "Handicraft",
  "is_standard": "Yes",
  "disabled": 0
 }

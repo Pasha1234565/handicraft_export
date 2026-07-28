@@ -5,10 +5,10 @@ import frappe
 
 def execute():
 	"""Ensure the Handicraft Export module exists in the system."""
-	if not frappe.db.exists("Module Def", "Handicraft Export"):
+	if not frappe.db.exists("Module Def", "Handicraft"):
 		module = frappe.get_doc({
 			"doctype": "Module Def",
-			"module_name": "Handicraft Export",
+			"module_name": "Handicraft",
 			"app_name": "handicraft_export",
 			"custom": 1,
 		})

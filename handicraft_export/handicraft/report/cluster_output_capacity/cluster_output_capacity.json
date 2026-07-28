@@ -2,7 +2,7 @@
  "doctype": "Report",
  "name": "Cluster Output Capacity",
  "report_type": "Query Report",
- "module": "Handicraft Export",
+ "module": "Handicraft",
  "is_standard": "Yes",
  "disabled": 0,
  "query": "SELECT\n  ac.cluster_name AS `Artisan Cluster`,\n  ac.region AS `Region`,\n  COUNT(DISTINCT a.name) AS `Active Artisans`,\n  AVG(pc.production_time_days) AS `Avg Production Time (Days)`,\n  SUM(pc.production_time_days) AS `Total Capacity (Days)`,\n  COUNT(DISTINCT pc.name) AS `Unique Products`\nFROM `tabArtisan Cluster` ac\nLEFT JOIN `tabArtisan` a ON a.artisan_cluster = ac.name\nLEFT JOIN `tabArtisan Product Catalog Entry` pc ON pc.artisan = a.name\nGROUP BY ac.name\nORDER BY `Total Capacity (Days)` DESC"

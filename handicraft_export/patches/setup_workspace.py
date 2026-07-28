@@ -16,7 +16,7 @@ def execute():
 		"workspace_name": workspace_name,
 		"icon": "package",
 		"label": workspace_name,
-		"module": "Handicraft Export",
+		"module": "Handicraft",
 		"is_standard": 1,
 		"charts": [
 			{

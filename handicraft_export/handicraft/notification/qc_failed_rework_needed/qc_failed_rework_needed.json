@@ -8,7 +8,7 @@
  "event": "After Save",
  "is_standard": 1,
  "message": "<h3>QC Alert</h3>\n<p>Batch Quality Record <strong>{{ doc.name }}</strong> has been marked as <strong>{{ doc.qc_status }}</strong>.</p>\n<p><strong>Job Card:</strong> {{ doc.job_card }}</p>\n<p><strong>Artisan:</strong> {{ doc.artisan }}</p>\n<p><strong>Inspector Notes:</strong> {{ doc.inspector_notes }}</p>",
- "module": "Handicraft Export",
+ "module": "Handicraft",
  "name": "QC Failed / Rework Needed",
  "recipients": [
   {

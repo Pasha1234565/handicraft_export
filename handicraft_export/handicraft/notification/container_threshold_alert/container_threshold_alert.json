@@ -8,7 +8,7 @@
  "event": "Value Change",
  "is_standard": 1,
  "message": "<h3>Container Threshold Alert</h3>\n<p>Export Order <strong>{{ doc.name }}</strong> container estimate has changed.</p>\n<p>The total CBM ({{ doc.total_cbm }}) now requires <strong>{{ doc.container_estimate }}</strong>.</p>\n<p>Logistics team should review shipping arrangements.</p>",
- "module": "Handicraft Export",
+ "module": "Handicraft",
  "name": "Container Threshold Alert",
  "recipients": [
   {

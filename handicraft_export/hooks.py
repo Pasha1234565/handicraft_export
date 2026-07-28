@@ -16,9 +16,9 @@ required_apps = ["erpnext"]
 # Fixtures
 # ------------------------------
 fixtures = [
-	{"dt": "Workspace", "filters": [["module", "=", "Handicraft Export"]]},
-	{"dt": "DocType", "filters": [["module", "=", "Handicraft Export"]]},
-	{"dt": "Report", "filters": [["module", "=", "Handicraft Export"]]},
+	{"dt": "Workspace", "filters": [["module", "=", "Handicraft"]]},
+	{"dt": "DocType", "filters": [["module", "=", "Handicraft"]]},
+	{"dt": "Report", "filters": [["module", "=", "Handicraft"]]},
 	{"dt": "Role", "filters": [["name", "in", ["Export Coordinator", "Artisan Liaison"]]]},
 	{"dt": "Notification", "filters": [["document_type", "in", ["Export Order", "Batch Quality Record"]]]},
 ]
