@@ -166,12 +166,12 @@ don't exist yet at migration time, it logs a warning and skips rather than
 		workspace.insert(ignore_permissions=True)
 		frappe.db.commit()
 	except frappe.LinkValidationError as e:
-		frappe.log_error(
-			message=f"Workspace '{workspace_name}' could not be created: {e}",
-			title="Workspace Creation Skipped",
-		)
 		frappe.db.rollback()
-		frappe.msgprint(
-			f"Workspace '{workspace_name}' will be created after all DocTypes/Reports are synced. "
-			"Run migration again after installing all apps."
+		frappe.log_error(
+			message=f"Workspace '{workspace_name}' skipped: {e}",
+			title="Workspace Creation Deferred",
 		)
+		# Print to migration console so user sees it during 'bench migrate'
+		print(f"\n⚠ Workspace '{workspace_name}' creation deferred — "
+			f"some referenced entities not yet found. "
+			f"Will retry on next migrate.\n")
