@@ -8,8 +8,19 @@
  "field_order": [
   "job_card",
   "artisan",
-  "qc_status",
+  "export_order",
   "column_break_3",
+  "qc_date",
+  "inspector",
+  "section_qty",
+  "qty_checked",
+  "qty_passed",
+  "qty_rework",
+  "qty_failed",
+  "column_break_qty",
+  "qc_status",
+  "defect_type",
+  "section_photos",
   "qc_photos",
   "section_notes",
   "inspector_notes"
@@ -33,6 +44,62 @@
    "read_only": 1
   },
   {
+   "fetch_from": "job_card.export_order",
+   "fieldname": "export_order",
+   "fieldtype": "Link",
+   "label": "Export Order",
+   "options": "Export Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "qc_date",
+   "fieldtype": "Date",
+   "label": "QC Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inspector",
+   "fieldtype": "Link",
+   "label": "Inspector",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_qty",
+   "fieldtype": "Section Break",
+   "label": "Quantity Inspection"
+  },
+  {
+   "fieldname": "qty_checked",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Qty Checked",
+   "reqd": 1
+  },
+  {
+   "fieldname": "qty_passed",
+   "fieldtype": "Int",
+   "label": "Qty Passed"
+  },
+  {
+   "fieldname": "qty_rework",
+   "fieldtype": "Int",
+   "label": "Qty Rework"
+  },
+  {
+   "fieldname": "qty_failed",
+   "fieldtype": "Int",
+   "label": "Qty Failed"
+  },
+  {
+   "fieldname": "column_break_qty",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "qc_status",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -41,8 +108,14 @@
    "reqd": 1
   },
   {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
+   "fieldname": "defect_type",
+   "fieldtype": "Small Text",
+   "label": "Defect Type / Description"
+  },
+  {
+   "fieldname": "section_photos",
+   "fieldtype": "Section Break",
+   "label": "Photos"
   },
   {
    "fieldname": "qc_photos",
@@ -60,7 +133,7 @@
    "label": "Inspector Notes"
   }
  ],
- "modified": "2026-07-28 10:00:00",
+ "modified": "2026-07-28 15:00:00",
  "modified_by": "Administrator",
  "module": "Handicraft",
  "name": "Batch Quality Record",

@@ -83,6 +83,7 @@ after_migrate = [
 	"handicraft_export.patches.create_handicraft_workspace.execute",
 	"handicraft_export.patches.create_dashboard_charts.execute",
 	"handicraft_export.patches.create_roles.execute",
+	"handicraft_export.patches.set_doctype_permissions.execute",
 	"handicraft_export.patches.create_custom_fields.execute",
 ]
 
