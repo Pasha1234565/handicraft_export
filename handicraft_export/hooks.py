@@ -74,9 +74,14 @@ scheduler_events = {
 
 # After Migrate
 # ------------------------------
-# Patches run via patches.txt [post_model_sync] during migrate.
-# after_migrate is a backup for fresh install-app flow.
+# These run on EVERY bench migrate (untracked — not recorded in Patch Log).
+# Unlike patches.txt entries which only run once, after_migrate hooks
+# always execute, ensuring DocTypes stay synced, workspace is current,
+# charts exist, and roles/custom fields are created.
 after_migrate = [
+	"handicraft_export.patches.force_sync_doctypes.execute",
+	"handicraft_export.patches.create_handicraft_workspace.execute",
+	"handicraft_export.patches.create_dashboard_charts.execute",
 	"handicraft_export.patches.create_roles.execute",
 	"handicraft_export.patches.create_custom_fields.execute",
 ]

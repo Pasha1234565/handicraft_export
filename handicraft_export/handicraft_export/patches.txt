@@ -1,0 +1,2 @@
+[pre_model_sync]
+handicraft_export.patches.create_handicraft_export_module.execute
