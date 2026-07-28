@@ -56,6 +56,14 @@ class ArtisanJobCard(Document):
 				"name",
 			)
 
+		# If still no expense account, throw a clear error
+		if not expense_account:
+			frappe.throw(
+				"Could not find a default expense account for this Purchase Invoice. "
+				"Please set 'default_expense_account' on your Company record, "
+				"or create a 'Cost of Goods Sold' type account."
+			)
+
 		item_row = {
 			"item_name": f"Job Work - {self.name}",
 			"description": (
