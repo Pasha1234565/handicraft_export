@@ -85,5 +85,4 @@ after_migrate = [
 after_install = [
 	"handicraft_export.patches.create_roles.execute",
 	"handicraft_export.patches.create_custom_fields.execute",
-	"handicraft_export.patches.setup_workspace.execute",
 ]
