@@ -74,18 +74,17 @@ scheduler_events = {
 
 # After Migrate
 # ------------------------------
-# Workspace, charts, roles, and custom fields are created via patches.txt [post_model_sync]
-# to ensure DocTypes exist before workspace/chart creation.
+# Patches run via patches.txt [post_model_sync] during migrate.
+# after_migrate is a backup for fresh install-app flow.
 after_migrate = [
-	"handicraft_export.patches.force_sync_doctypes.execute",
-	"handicraft_export.patches.create_handicraft_workspace.execute",
-	"handicraft_export.patches.create_dashboard_charts.execute",
 	"handicraft_export.patches.create_roles.execute",
 	"handicraft_export.patches.create_custom_fields.execute",
 ]
 
 # After Install
 # ------------------------------
+# Runs on bench install-app (before migrate).
+# Creates roles and custom fields so DocType sync can use them.
 after_install = [
 	"handicraft_export.patches.create_roles.execute",
 	"handicraft_export.patches.create_custom_fields.execute",
