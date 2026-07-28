@@ -1,8 +1,7 @@
 from __future__ import unicode_literals
 
 import frappe
-from frappe.utils import nowdate, add_days, add_years
-from frappe.utils.data import flt
+from frappe.utils import nowdate, add_days, flt
 
 
 def execute():
@@ -15,40 +14,50 @@ def execute():
 	print("🌍  HANDICRAFT EXPORT — Demo Data Seeder")
 	print("=" * 60)
 
-	# ── 1. Item Groups (for crafts) ──
-	craft_groups = ensure_craft_item_groups()
+	try:
+		# ── 1. Item Groups (for crafts) ──
+		craft_groups = ensure_craft_item_groups()
 
-	# ── 2. Standard ERPNext Items (handicraft products) ──
-	items = ensure_items(craft_groups)
+		# ── 2. Standard ERPNext Items (handicraft products) ──
+		items = ensure_items(craft_groups)
 
-	# ── 3. Suppliers (artisan accounting entities) ──
-	suppliers = ensure_suppliers()
+		# ── 3. Raw material Items (for job cards) ──
+		raw_items = ensure_raw_material_items()
 
-	# ── 4. Artisan Clusters ──
-	clusters = ensure_artisan_clusters()
+		# ── 4. Suppliers (artisan accounting entities) ──
+		suppliers = ensure_suppliers()
 
-	# ── 5. Artisans ──
-	artisans = ensure_artisans(clusters, suppliers, craft_groups)
+		# ── 5. Artisan Clusters ──
+		clusters = ensure_artisan_clusters()
 
-	# ── 6. Artisan Product Catalog Entries ──
-	catalog_entries = ensure_catalog_entries(artisans, items)
+		# ── 6. Artisans ──
+		artisans = ensure_artisans(clusters, suppliers, craft_groups)
 
-	# ── 7. Visual Offer Sheets ──
-	offer_sheets = ensure_visual_offer_sheets(catalog_entries)
+		# ── 7. Artisan Product Catalog Entries ──
+		catalog_entries = ensure_catalog_entries(artisans, items)
 
-	# ── 8. Export Orders ──
-	export_orders = ensure_export_orders(catalog_entries)
+		# ── 8. Visual Offer Sheets ──
+		offer_sheets = ensure_visual_offer_sheets(catalog_entries)
 
-	# ── 9. Artisan Job Cards ──
-	job_cards = ensure_job_cards(export_orders, artisans)
+		# ── 9. Export Orders ──
+		export_orders = ensure_export_orders(items)
 
-	# ── 10. Batch Quality Records ──
-	ensure_batch_qc(job_cards)
+		# ── 10. Artisan Job Cards ──
+		job_cards = ensure_job_cards(export_orders, artisans, raw_items)
 
-	print()
-	print("=" * 60)
-	print("✅  Demo data seeded successfully!")
-	print("=" * 60)
+		# ── 11. Batch Quality Records ──
+		ensure_batch_qc(job_cards)
+
+		print()
+		print("=" * 60)
+		print("✅  Demo data seeded successfully!")
+		print("=" * 60)
+
+	except Exception as e:
+		frappe.db.rollback()
+		print(f"\n❌  Error seeding demo data: {e}")
+		frappe.log_error(f"Demo data seeding failed: {e}", "Handicraft Export Demo")
+		raise
 
 
 # ═══════════════════════════════════════════════════════
@@ -57,15 +66,15 @@ def execute():
 
 def ensure_craft_item_groups():
 	"""Ensure Item Groups for handicraft categories exist."""
-	groups = {
-		"Wood Carving": {},
-		"Textile & Embroidery": {},
-		"Metal Craft": {},
-		"Pottery & Ceramics": {},
-		"Jewelry & Beadwork": {},
-		"Paintings & Wall Art": {},
-		"Handicraft Raw Materials": {},
-	}
+	groups = [
+		"Wood Carving",
+		"Textile & Embroidery",
+		"Metal Craft",
+		"Pottery & Ceramics",
+		"Jewelry & Beadwork",
+		"Paintings & Wall Art",
+		"Handicraft Raw Materials",
+	]
 
 	created = {}
 	for group_name in groups:
@@ -94,33 +103,45 @@ def ensure_items(craft_groups):
 	"""Ensure standard Items for handicraft products exist."""
 	default_uom = frappe.db.get_single_value("Stock Settings", "stock_uom") or "Nos"
 
+	# Ensure basic UOMs exist
+	for uom_name in ["Nos", "Kg", "Mtr", "Pkt", "Ltr", "Pair"]:
+		if not frappe.db.exists("UOM", uom_name):
+			try:
+				frappe.get_doc({"doctype": "UOM", "uom_name": uom_name}).insert(ignore_permissions=True)
+			except Exception:
+				pass  # Skip if UOM creation fails (might be restricted)
+	frappe.db.commit()
+
 	items_data = [
 		# Wood Carving
-		{"item_code": "HDC-WD-001", "item_name": "Rosewood Elephant Sculpture", "item_group": "Wood Carving", "description": "Hand-carved rosewood elephant sculpture, 12 inches", "stock_uom": default_uom, "weight_per_unit": 2.5, "weight_uom": "Kg"},
-		{"item_code": "HDC-WD-002", "item_name": "Sandalwood Jewelry Box", "item_group": "Wood Carving", "description": "Intricately carved sandalwood jewelry box with floral motif", "stock_uom": default_uom, "weight_per_unit": 1.2, "weight_uom": "Kg"},
-		{"item_code": "HDC-WD-003", "item_name": "Teak Wood Wall Panel", "item_group": "Wood Carving", "description": "Teak wood wall panel with traditional dancers, 24x36 inches", "stock_uom": default_uom, "weight_per_unit": 5.0, "weight_uom": "Kg"},
+		{"item_code": "HDC-WD-001", "item_name": "Rosewood Elephant Sculpture", "item_group": "Wood Carving", "stock_uom": default_uom, "description": "Hand-carved rosewood elephant sculpture, 12 inches"},
+		{"item_code": "HDC-WD-002", "item_name": "Sandalwood Jewelry Box", "item_group": "Wood Carving", "stock_uom": default_uom, "description": "Intricately carved sandalwood jewelry box with floral motif"},
+		{"item_code": "HDC-WD-003", "item_name": "Teak Wood Wall Panel", "item_group": "Wood Carving", "stock_uom": default_uom, "description": "Teak wood wall panel with traditional dancers, 24x36 inches"},
 		# Textile & Embroidery
-		{"item_code": "HDC-TX-001", "item_name": "Silk Embroidered Saree", "item_group": "Textile & Embroidery", "description": "Hand-embroidered pure silk saree with zari work", "stock_uom": default_uom, "weight_per_unit": 0.8, "weight_uom": "Kg"},
-		{"item_code": "HDC-TX-002", "item_name": "Cotton Block Print Tablecloth", "item_group": "Textile & Embroidery", "description": "Hand block-printed cotton tablecloth, 60x90 inches", "stock_uom": default_uom, "weight_per_unit": 0.5, "weight_uom": "Kg"},
+		{"item_code": "HDC-TX-001", "item_name": "Silk Embroidered Saree", "item_group": "Textile & Embroidery", "stock_uom": default_uom, "description": "Hand-embroidered pure silk saree with zari work"},
+		{"item_code": "HDC-TX-002", "item_name": "Cotton Block Print Tablecloth", "item_group": "Textile & Embroidery", "stock_uom": default_uom, "description": "Hand block-printed cotton tablecloth, 60x90 inches"},
 		# Metal Craft
-		{"item_code": "HDC-MT-001", "item_name": "Brass Dancing Lady Statue", "item_group": "Metal Craft", "description": "Brass statue of dancing lady, lost wax process, 18 inches", "stock_uom": default_uom, "weight_per_unit": 3.0, "weight_uom": "Kg"},
-		{"item_code": "HDC-MT-002", "item_name": "Copper Decorative Vase", "item_group": "Metal Craft", "description": "Hand-hammered copper vase with floral engravings", "stock_uom": default_uom, "weight_per_unit": 1.8, "weight_uom": "Kg"},
+		{"item_code": "HDC-MT-001", "item_name": "Brass Dancing Lady Statue", "item_group": "Metal Craft", "stock_uom": default_uom, "description": "Brass statue of dancing lady, lost wax process, 18 inches"},
+		{"item_code": "HDC-MT-002", "item_name": "Copper Decorative Vase", "item_group": "Metal Craft", "stock_uom": default_uom, "description": "Hand-hammered copper vase with floral engravings"},
 		# Pottery & Ceramics
-		{"item_code": "HDC-PT-001", "item_name": "Blue Pottery Serving Bowl", "item_group": "Pottery & Ceramics", "description": "Hand-painted blue pottery serving bowl, 10 inch diameter", "stock_uom": default_uom, "weight_per_unit": 0.6, "weight_uom": "Kg"},
-		{"item_code": "HDC-PT-002", "item_name": "Terracotta Tea Set", "item_group": "Pottery & Ceramics", "description": "6-piece terracotta tea set with tribal motifs", "stock_uom": default_uom, "weight_per_unit": 2.0, "weight_uom": "Kg"},
+		{"item_code": "HDC-PT-001", "item_name": "Blue Pottery Serving Bowl", "item_group": "Pottery & Ceramics", "stock_uom": default_uom, "description": "Hand-painted blue pottery serving bowl, 10 inch diameter"},
+		{"item_code": "HDC-PT-002", "item_name": "Terracotta Tea Set (6 pcs)", "item_group": "Pottery & Ceramics", "stock_uom": default_uom, "description": "6-piece terracotta tea set with tribal motifs"},
 		# Jewelry
-		{"item_code": "HDC-JW-001", "item_name": "Silver Tribal Necklace", "item_group": "Jewelry & Beadwork", "description": "Handcrafted silver necklace with tribal beadwork", "stock_uom": default_uom, "weight_per_unit": 0.3, "weight_uom": "Kg"},
+		{"item_code": "HDC-JW-001", "item_name": "Silver Tribal Necklace", "item_group": "Jewelry & Beadwork", "stock_uom": default_uom, "description": "Handcrafted silver necklace with tribal beadwork"},
 	]
 
 	created = {}
 	for item_data in items_data:
 		if not frappe.db.exists("Item", item_data["item_code"]):
-			doc = frappe.get_doc({
-				"doctype": "Item",
-				**item_data,
-			})
-			doc.insert(ignore_permissions=True)
-			print(f"  📦 Created Item: {item_data['item_code']} - {item_data['item_name']}")
+			try:
+				doc = frappe.get_doc({
+					"doctype": "Item",
+					**item_data,
+				})
+				doc.insert(ignore_permissions=True)
+				print(f"  📦 Created Item: {item_data['item_code']} - {item_data['item_name']}")
+			except Exception as e:
+				print(f"  ⚠️  Could not create item {item_data['item_code']}: {e}")
 		else:
 			print(f"  📦 Item already exists: {item_data['item_code']}")
 		created[item_data["item_name"]] = item_data["item_code"]
@@ -130,29 +151,90 @@ def ensure_items(craft_groups):
 
 
 # ═══════════════════════════════════════════════════════
-#  3. Suppliers
+#  3. Raw Material Items (for Job Cards)
+# ═══════════════════════════════════════════════════════
+
+def ensure_raw_material_items():
+	"""Ensure raw material Items exist for Job Card material references."""
+	default_uom = frappe.db.get_single_value("Stock Settings", "stock_uom") or "Nos"
+
+	raw_materials = [
+		{"item_code": "RM-WD-001", "item_name": "Wood Block - Teak", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-WD-002", "item_name": "Sandalwood Block", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-MT-001", "item_name": "Brass Sheet", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-MT-002", "item_name": "Polishing Compound", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-PT-001", "item_name": "Clay Block", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-PT-002", "item_name": "Terracotta Clay", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-PT-003", "item_name": "Ceramic Glaze", "item_group": "Handicraft Raw Materials", "stock_uom": "Ltr"},
+		{"item_code": "RM-PT-004", "item_name": "Natural Paint Set", "item_group": "Handicraft Raw Materials", "stock_uom": default_uom},
+		{"item_code": "RM-TX-001", "item_name": "Silk Fabric", "item_group": "Handicraft Raw Materials", "stock_uom": "Mtr"},
+		{"item_code": "RM-TX-002", "item_name": "Embroidery Thread", "item_group": "Handicraft Raw Materials", "stock_uom": "Pkt"},
+		{"item_code": "RM-WD-003", "item_name": "Varnish", "item_group": "Handicraft Raw Materials", "stock_uom": "Ltr"},
+	]
+
+	created = {}
+	for item_data in raw_materials:
+		if not frappe.db.exists("Item", item_data["item_code"]):
+			try:
+				doc = frappe.get_doc({
+					"doctype": "Item",
+					**item_data,
+				})
+				doc.insert(ignore_permissions=True)
+				print(f"  🪵  Created Raw Material: {item_data['item_code']} - {item_data['item_name']}")
+			except Exception as e:
+				print(f"  ⚠️  Could not create raw material {item_data['item_code']}: {e}")
+		created[item_data["item_name"]] = item_data["item_code"]
+
+	frappe.db.commit()
+	return created
+
+
+# ═══════════════════════════════════════════════════════
+#  4. Suppliers
 # ═══════════════════════════════════════════════════════
 
 def ensure_suppliers():
 	"""Ensure Suppliers for artisans exist."""
+	# Ensure default supplier group and type exist
+	for sg in ["Distributor", "Services"]:
+		if not frappe.db.exists("Supplier Group", sg):
+			try:
+				frappe.get_doc({"doctype": "Supplier Group", "supplier_group_name": sg}).insert(ignore_permissions=True)
+			except Exception:
+				pass
+
+	for st in ["Company", "Individual"]:
+		if not frappe.db.exists("Supplier Type", st):
+			try:
+				frappe.get_doc({"doctype": "Supplier Type", "supplier_type_name": st}).insert(ignore_permissions=True)
+			except Exception:
+				pass
+	frappe.db.commit()
+
 	suppliers_data = [
-		{"supplier_name": "Mumbai Handicrafts Cooperative", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@mumbaihandicrafts.in", "mobile_no": "+91-9876543210"},
-		{"supplier_name": "Rajasthan Rural Artisans Collective", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@rajasthanartisans.in", "mobile_no": "+91-9876543211"},
-		{"supplier_name": "Kerala Woodcraft Society", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@keralawoodcraft.in", "mobile_no": "+91-9876543212"},
-		{"supplier_name": "Varanasi Silk Weavers Association", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@varanasisilk.in", "mobile_no": "+91-9876543213"},
-		{"supplier_name": "Jaipur Blue Pottery Trust", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@jaipurpottery.in", "mobile_no": "+91-9876543214"},
+		{"supplier_name": "Mumbai Handicrafts Cooperative", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@mumbaihandicrafts.in"},
+		{"supplier_name": "Rajasthan Rural Artisans Collective", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@rajasthanartisans.in"},
+		{"supplier_name": "Kerala Woodcraft Society", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@keralawoodcraft.in"},
+		{"supplier_name": "Varanasi Silk Weavers Association", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@varanasisilk.in"},
+		{"supplier_name": "Jaipur Blue Pottery Trust", "supplier_group": "Distributor", "supplier_type": "Company", "email": "info@jaipurpottery.in"},
 	]
 
 	created = {}
 	for s_data in suppliers_data:
 		name = s_data["supplier_name"]
 		if not frappe.db.exists("Supplier", name):
-			doc = frappe.get_doc({
-				"doctype": "Supplier",
-				**s_data,
-			})
-			doc.insert(ignore_permissions=True)
-			print(f"  🏢 Created Supplier: {name}")
+			try:
+				doc = frappe.get_doc({
+					"doctype": "Supplier",
+					"supplier_name": s_data["supplier_name"],
+					"supplier_group": s_data["supplier_group"],
+					"supplier_type": s_data["supplier_type"],
+				})
+				doc.insert(ignore_permissions=True)
+				print(f"  🏢 Created Supplier: {name}")
+			except Exception as e:
+				print(f"  ⚠️  Could not create supplier {name}: {e}")
 		else:
 			print(f"  🏢 Supplier already exists: {name}")
 		created[name] = name
@@ -162,7 +244,7 @@ def ensure_suppliers():
 
 
 # ═══════════════════════════════════════════════════════
-#  4. Artisan Clusters
+#  5. Artisan Clusters
 # ═══════════════════════════════════════════════════════
 
 def ensure_artisan_clusters():
@@ -194,7 +276,7 @@ def ensure_artisan_clusters():
 
 
 # ═══════════════════════════════════════════════════════
-#  5. Artisans
+#  6. Artisans
 # ═══════════════════════════════════════════════════════
 
 def ensure_artisans(clusters, suppliers, craft_groups):
@@ -238,20 +320,20 @@ def ensure_artisans(clusters, suppliers, craft_groups):
 
 
 # ═══════════════════════════════════════════════════════
-#  6. Artisan Product Catalog Entries
+#  7. Artisan Product Catalog Entries
 # ═══════════════════════════════════════════════════════
 
 def ensure_catalog_entries(artisans, items):
 	"""Ensure Artisan Product Catalog Entries exist."""
 	entries_data = [
-		{"product_name": "Rosewood Elephant Sculpture - Ram Vilas", "item": items.get("Rosewood Elephant Sculpture", "HDC-WD-001"), "artisan": artisans["Ram Vilas Sharma"], "production_days": 10, "min_qty": 5, "length": 30, "width": 12, "height": 15, "weight": 2.5, "units_per_carton": 6},
-		{"product_name": "Sandalwood Jewelry Box - Rajesh", "item": items.get("Sandalwood Jewelry Box", "HDC-WD-002"), "artisan": artisans["Rajesh Kumar Suthar"], "production_days": 7, "min_qty": 10, "length": 20, "width": 15, "height": 10, "weight": 1.2, "units_per_carton": 12},
-		{"product_name": "Madhubani Wall Panel - Sita Devi", "item": items.get("Teak Wood Wall Panel", "HDC-WD-003"), "artisan": artisans["Sita Devi"], "production_days": 15, "min_qty": 3, "length": 90, "width": 60, "height": 5, "weight": 5.0, "units_per_carton": 4},
-		{"product_name": "Embroidered Silk Saree - Aisha", "item": items.get("Silk Embroidered Saree", "HDC-TX-001"), "artisan": artisans["Aisha Ben"], "production_days": 20, "min_qty": 5, "length": 30, "width": 20, "height": 5, "weight": 0.8, "units_per_carton": 20},
-		{"product_name": "Block Print Tablecloth - Johan", "item": items.get("Cotton Block Print Tablecloth", "HDC-TX-002"), "artisan": artisans["Johan Rabari"], "production_days": 5, "min_qty": 20, "length": 15, "width": 15, "height": 10, "weight": 0.5, "units_per_carton": 30},
-		{"product_name": "Brass Dancing Lady - Ghulam", "item": items.get("Brass Dancing Lady Statue", "HDC-MT-001"), "artisan": artisans["Ghulam Ali"], "production_days": 14, "min_qty": 4, "length": 25, "width": 15, "height": 45, "weight": 3.0, "units_per_carton": 6},
-		{"product_name": "Blue Pottery Bowl Set - Lakshmi", "item": items.get("Blue Pottery Serving Bowl", "HDC-PT-001"), "artisan": artisans["Lakshmi Bai"], "production_days": 8, "min_qty": 12, "length": 30, "width": 30, "height": 15, "weight": 0.6, "units_per_carton": 12},
-		{"product_name": "Terracotta Tea Set - Mohan", "item": items.get("Terracotta Tea Set", "HDC-PT-002"), "artisan": artisans["Mohan Rao"], "production_days": 6, "min_qty": 10, "length": 25, "width": 20, "height": 20, "weight": 2.0, "units_per_carton": 8},
+		{"product_name": "Rosewood Elephant Sculpture - Ram Vilas", "item": "HDC-WD-001", "artisan": "Ram Vilas Sharma", "production_days": 10, "min_qty": 5, "length": 30, "width": 12, "height": 15, "weight": 2.5, "units_per_carton": 6},
+		{"product_name": "Sandalwood Jewelry Box - Rajesh", "item": "HDC-WD-002", "artisan": "Rajesh Kumar Suthar", "production_days": 7, "min_qty": 10, "length": 20, "width": 15, "height": 10, "weight": 1.2, "units_per_carton": 12},
+		{"product_name": "Madhubani Wall Panel - Sita Devi", "item": "HDC-WD-003", "artisan": "Sita Devi", "production_days": 15, "min_qty": 3, "length": 90, "width": 60, "height": 5, "weight": 5.0, "units_per_carton": 4},
+		{"product_name": "Embroidered Silk Saree - Aisha", "item": "HDC-TX-001", "artisan": "Aisha Ben", "production_days": 20, "min_qty": 5, "length": 30, "width": 20, "height": 5, "weight": 0.8, "units_per_carton": 20},
+		{"product_name": "Block Print Tablecloth - Johan", "item": "HDC-TX-002", "artisan": "Johan Rabari", "production_days": 5, "min_qty": 20, "length": 15, "width": 15, "height": 10, "weight": 0.5, "units_per_carton": 30},
+		{"product_name": "Brass Dancing Lady - Ghulam", "item": "HDC-MT-001", "artisan": "Ghulam Ali", "production_days": 14, "min_qty": 4, "length": 25, "width": 15, "height": 45, "weight": 3.0, "units_per_carton": 6},
+		{"product_name": "Blue Pottery Bowl Set - Lakshmi", "item": "HDC-PT-001", "artisan": "Lakshmi Bai", "production_days": 8, "min_qty": 12, "length": 30, "width": 30, "height": 15, "weight": 0.6, "units_per_carton": 12},
+		{"product_name": "Terracotta Tea Set - Mohan", "item": "HDC-PT-002", "artisan": "Mohan Rao", "production_days": 6, "min_qty": 10, "length": 25, "width": 20, "height": 20, "weight": 2.0, "units_per_carton": 8},
 	]
 
 	created = {}
@@ -263,14 +345,18 @@ def ensure_catalog_entries(artisans, items):
 			created[product_name] = existing
 			continue
 
-		# Calculate CBM
+		artisan_docname = artisans.get(e_data["artisan"])
+		if not artisan_docname:
+			print(f"  ⚠️  Artisan not found for catalog entry: {e_data['artisan']}")
+			continue
+
 		cbm = (e_data["length"] * e_data["width"] * e_data["height"]) / 1000000.0
 
 		doc = frappe.get_doc({
 			"doctype": "Artisan Product Catalog Entry",
 			"product_name": product_name,
 			"item_code": e_data["item"],
-			"artisan": e_data["artisan"],
+			"artisan": artisan_docname,
 			"production_time_days": e_data["production_days"],
 			"min_order_qty": e_data["min_qty"],
 			"length_cm": e_data["length"],
@@ -289,7 +375,7 @@ def ensure_catalog_entries(artisans, items):
 
 
 # ═══════════════════════════════════════════════════════
-#  7. Visual Offer Sheets
+#  8. Visual Offer Sheets
 # ═══════════════════════════════════════════════════════
 
 def ensure_visual_offer_sheets(catalog_entries):
@@ -377,56 +463,71 @@ def ensure_visual_offer_sheets(catalog_entries):
 
 
 # ═══════════════════════════════════════════════════════
-#  8. Export Orders
+#  9. Export Orders (with existence check)
 # ═══════════════════════════════════════════════════════
 
-def ensure_export_orders(catalog_entries):
-	"""Ensure Export Orders exist."""
+def ensure_export_orders(items):
+	"""Ensure Export Orders exist (checks by buyer_country + incoterm combo)."""
 	today = nowdate()
 
 	orders_data = [
 		{
+			"key": "USA-FOB",
 			"buyer_country": "USA",
 			"incoterm": "FOB",
 			"port_of_discharge": "Newark, NJ",
 			"coo_status": "Applied",
 			"ship_date": add_days(today, 20),
 			"packing": [
-				{"carton": "CTN-001", "item": "Rosewood Elephant", "qty": 12, "net_wt": 28.0, "gross_wt": 30.5, "cbm": 0.054},
-				{"carton": "CTN-002", "item": "Rosewood Elephant", "qty": 12, "net_wt": 28.0, "gross_wt": 30.5, "cbm": 0.054},
-				{"carton": "CTN-003", "item": "Rosewood Elephant", "qty": 12, "net_wt": 28.0, "gross_wt": 30.5, "cbm": 0.054},
-				{"carton": "CTN-004", "item": "Rosewood Elephant", "qty": 14, "net_wt": 32.0, "gross_wt": 35.0, "cbm": 0.063},
-				{"carton": "CTN-005", "item": "Brass Dancing Lady", "qty": 6, "net_wt": 16.0, "gross_wt": 18.0, "cbm": 0.084},
-				{"carton": "CTN-006", "item": "Brass Dancing Lady", "qty": 6, "net_wt": 16.0, "gross_wt": 18.0, "cbm": 0.084},
-				{"carton": "CTN-007", "item": "Brass Dancing Lady", "qty": 6, "net_wt": 16.0, "gross_wt": 18.0, "cbm": 0.084},
-				{"carton": "CTN-008", "item": "Brass Dancing Lady", "qty": 6, "net_wt": 16.0, "gross_wt": 18.0, "cbm": 0.084},
-				{"carton": "CTN-009", "item": "Brass Dancing Lady", "qty": 6, "net_wt": 16.0, "gross_wt": 18.0, "cbm": 0.084},
-				{"carton": "CTN-010", "item": "Blue Pottery Bowl", "qty": 50, "net_wt": 30.0, "gross_wt": 35.0, "cbm": 0.135},
-				{"carton": "CTN-011", "item": "Blue Pottery Bowl", "qty": 50, "net_wt": 30.0, "gross_wt": 35.0, "cbm": 0.135},
+				("CTN-001", "HDC-WD-001", 12, 28.0, 30.5, 0.054),
+				("CTN-002", "HDC-WD-001", 12, 28.0, 30.5, 0.054),
+				("CTN-003", "HDC-WD-001", 12, 28.0, 30.5, 0.054),
+				("CTN-004", "HDC-WD-001", 14, 32.0, 35.0, 0.063),
+				("CTN-005", "HDC-MT-001", 6, 16.0, 18.0, 0.084),
+				("CTN-006", "HDC-MT-001", 6, 16.0, 18.0, 0.084),
+				("CTN-007", "HDC-MT-001", 6, 16.0, 18.0, 0.084),
+				("CTN-008", "HDC-MT-001", 6, 16.0, 18.0, 0.084),
+				("CTN-009", "HDC-MT-001", 6, 16.0, 18.0, 0.084),
+				("CTN-010", "HDC-PT-001", 50, 30.0, 35.0, 0.135),
+				("CTN-011", "HDC-PT-001", 50, 30.0, 35.0, 0.135),
 			],
 		},
 		{
+			"key": "Germany-CIF",
 			"buyer_country": "Germany",
 			"incoterm": "CIF",
 			"port_of_discharge": "Hamburg",
 			"coo_status": "Not Started",
 			"ship_date": add_days(today, 35),
 			"packing": [
-				{"carton": "CTN-G1", "item": "Silk Saree", "qty": 10, "net_wt": 7.0, "gross_wt": 8.5, "cbm": 0.003},
-				{"carton": "CTN-G2", "item": "Silk Saree", "qty": 10, "net_wt": 7.0, "gross_wt": 8.5, "cbm": 0.003},
-				{"carton": "CTN-G3", "item": "Silk Saree", "qty": 5, "net_wt": 3.5, "gross_wt": 4.5, "cbm": 0.0015},
-				{"carton": "CTN-G4", "item": "Sandalwood Box", "qty": 20, "net_wt": 22.0, "gross_wt": 24.0, "cbm": 0.030},
-				{"carton": "CTN-G5", "item": "Sandalwood Box", "qty": 20, "net_wt": 22.0, "gross_wt": 24.0, "cbm": 0.030},
-				{"carton": "CTN-G6", "item": "Sandalwood Box", "qty": 20, "net_wt": 22.0, "gross_wt": 24.0, "cbm": 0.030},
-				{"carton": "CTN-G7", "item": "Terracotta Tea Set", "qty": 20, "net_wt": 35.0, "gross_wt": 40.0, "cbm": 0.080},
-				{"carton": "CTN-G8", "item": "Terracotta Tea Set", "qty": 20, "net_wt": 35.0, "gross_wt": 40.0, "cbm": 0.080},
+				("CTN-G1", "HDC-TX-001", 10, 7.0, 8.5, 0.003),
+				("CTN-G2", "HDC-TX-001", 10, 7.0, 8.5, 0.003),
+				("CTN-G3", "HDC-TX-001", 5, 3.5, 4.5, 0.0015),
+				("CTN-G4", "HDC-WD-002", 20, 22.0, 24.0, 0.030),
+				("CTN-G5", "HDC-WD-002", 20, 22.0, 24.0, 0.030),
+				("CTN-G6", "HDC-WD-002", 20, 22.0, 24.0, 0.030),
+				("CTN-G7", "HDC-PT-002", 20, 35.0, 40.0, 0.080),
+				("CTN-G8", "HDC-PT-002", 20, 35.0, 40.0, 0.080),
 			],
 		},
 	]
 
 	created = []
 	for o_data in orders_data:
-		total_cbm = sum(p["cbm"] for p in o_data["packing"])
+		# Check if export order already exists for this route
+		if frappe.db.exists("Export Order", {
+			"buyer_country": o_data["buyer_country"],
+			"incoterm": o_data["incoterm"],
+		}):
+			print(f"  🚢 Export Order to {o_data['buyer_country']} ({o_data['incoterm']}) already exists")
+			existing = frappe.get_value("Export Order", {
+				"buyer_country": o_data["buyer_country"],
+				"incoterm": o_data["incoterm"],
+			}, "name")
+			created.append(existing)
+			continue
+
+		total_cbm = sum(p[5] for p in o_data["packing"])
 
 		# Determine container estimate
 		if total_cbm < 15:
@@ -439,11 +540,12 @@ def ensure_export_orders(catalog_entries):
 		packing_list = []
 		for p in o_data["packing"]:
 			packing_list.append({
-				"carton_number": p["carton"],
-				"qty_inside": p["qty"],
-				"net_weight": p["net_wt"],
-				"gross_weight": p["gross_wt"],
-				"cbm": p["cbm"],
+				"carton_number": p[0],
+				"item": p[1],  # Item code
+				"qty_inside": p[2],
+				"net_weight": p[3],
+				"gross_weight": p[4],
+				"cbm": p[5],
 			})
 
 		doc = frappe.get_doc({
@@ -466,106 +568,116 @@ def ensure_export_orders(catalog_entries):
 
 
 # ═══════════════════════════════════════════════════════
-#  9. Artisan Job Cards
+#  10. Artisan Job Cards
 # ═══════════════════════════════════════════════════════
 
-def ensure_job_cards(export_orders, artisans):
+def ensure_job_cards(export_orders, artisans, raw_items):
 	"""Ensure Artisan Job Cards exist."""
 	if not export_orders:
+		print("  ⚠️  No export orders to create job cards for")
 		return []
 
 	job_cards_data = [
-		{"export_order": export_orders[0], "artisan": "Ram Vilas Sharma", "piece_rate": 450.00, "ordered": 50, "received": 50, "rejected": 2, "materials": [("Wood Block - Teak", 2.5, "Kg"), ("Carving Tools Kit", 1, "Nos")]},
-		{"export_order": export_orders[0], "artisan": "Ghulam Ali", "piece_rate": 850.00, "ordered": 30, "received": 28, "rejected": 1, "materials": [("Brass Sheet", 3.0, "Kg"), ("Polishing Compound", 0.5, "Kg")]},
-		{"export_order": export_orders[0], "artisan": "Lakshmi Bai", "piece_rate": 280.00, "ordered": 100, "received": 95, "rejected": 5, "materials": [("Clay Block", 10.0, "Kg"), ("Ceramic Glaze", 2.0, "Ltr")]},
-		{"export_order": export_orders[1], "artisan": "Aisha Ben", "piece_rate": 1200.00, "ordered": 25, "received": 22, "rejected": 0, "materials": [("Silk Fabric", 15.0, "Mtr"), ("Embroidery Thread", 5.0, "Pkt")]},
-		{"export_order": export_orders[1], "artisan": "Rajesh Kumar Suthar", "piece_rate": 500.00, "ordered": 60, "received": 55, "rejected": 3, "materials": [("Sandalwood Block", 8.0, "Kg"), ("Varnish", 1.0, "Ltr")]},
-		{"export_order": export_orders[1], "artisan": "Mohan Rao", "piece_rate": 350.00, "ordered": 40, "received": 38, "rejected": 2, "materials": [("Terracotta Clay", 12.0, "Kg"), ("Natural Paint Set", 2.0, "Nos")]},
+		{"export_order_idx": 0, "artisan_name": "Ram Vilas Sharma", "piece_rate": 450.00, "ordered": 50, "received": 50, "rejected": 2, "materials": [("RM-WD-001", 2.5, "Kg")]},
+		{"export_order_idx": 0, "artisan_name": "Ghulam Ali", "piece_rate": 850.00, "ordered": 30, "received": 28, "rejected": 1, "materials": [("RM-MT-001", 3.0, "Kg"), ("RM-MT-002", 0.5, "Kg")]},
+		{"export_order_idx": 0, "artisan_name": "Lakshmi Bai", "piece_rate": 280.00, "ordered": 100, "received": 95, "rejected": 5, "materials": [("RM-PT-001", 10.0, "Kg"), ("RM-PT-003", 2.0, "Ltr")]},
+		{"export_order_idx": 1, "artisan_name": "Aisha Ben", "piece_rate": 1200.00, "ordered": 25, "received": 22, "rejected": 0, "materials": [("RM-TX-001", 15.0, "Mtr"), ("RM-TX-002", 5.0, "Pkt")]},
+		{"export_order_idx": 1, "artisan_name": "Rajesh Kumar Suthar", "piece_rate": 500.00, "ordered": 60, "received": 55, "rejected": 3, "materials": [("RM-WD-002", 8.0, "Kg"), ("RM-WD-003", 1.0, "Ltr")]},
+		{"export_order_idx": 1, "artisan_name": "Mohan Rao", "piece_rate": 350.00, "ordered": 40, "received": 38, "rejected": 2, "materials": [("RM-PT-002", 12.0, "Kg"), ("RM-PT-004", 2.0, "Nos")]},
 	]
 
 	created = []
 	for jc_data in job_cards_data:
-		artisan_name = jc_data["artisan"]
-		artisan_docname = artisans.get(artisan_name)
-		if not artisan_docname:
-			print(f"  ⚠️  Artisan not found: {artisan_name}")
+		idx = jc_data["export_order_idx"]
+		if idx >= len(export_orders):
+			print(f"  ⚠️  Export order index {idx} out of range")
 			continue
 
-		# Check if job card already exists for this artisan+order
-		existing = frappe.db.exists("Artisan Job Card", {
-			"export_order": jc_data["export_order"],
+		export_order = export_orders[idx]
+		artisan_docname = artisans.get(jc_data["artisan_name"])
+		if not artisan_docname:
+			print(f"  ⚠️  Artisan not found: {jc_data['artisan_name']}")
+			continue
+
+		# Check if job card already exists
+		if frappe.db.exists("Artisan Job Card", {
+			"export_order": export_order,
 			"artisan": artisan_docname,
-		})
-		if existing:
-			print(f"  📝 Job Card already exists for {artisan_name}")
+		}):
+			print(f"  📝 Job Card already exists for {jc_data['artisan_name']}")
+			existing = frappe.get_value("Artisan Job Card", {
+				"export_order": export_order,
+				"artisan": artisan_docname,
+			}, "name")
 			created.append(existing)
 			continue
 
 		materials = []
-		if jc_data.get("materials"):
-			for mat_item, mat_qty, mat_uom in jc_data["materials"]:
-				materials.append({
-					"material_item": mat_item,
-					"qty_issued": mat_qty,
-					"uom": mat_uom,
-				})
+		for mat_item_code, mat_qty, mat_uom in jc_data["materials"]:
+			materials.append({
+				"material_item": mat_item_code,
+				"qty_issued": mat_qty,
+				"uom": mat_uom,
+			})
 
-		doc = frappe.get_doc({
-			"doctype": "Artisan Job Card",
-			"export_order": jc_data["export_order"],
-			"artisan": artisan_docname,
-			"piece_rate_inr": jc_data["piece_rate"],
-			"qty_ordered": jc_data["ordered"],
-			"qty_received": jc_data["received"],
-			"qty_rejected": jc_data["rejected"],
-			"raw_materials_issued": materials,
-		})
-		doc.insert(ignore_permissions=True)
-		print(f"  📝 Created Job Card for {artisan_name} ({jc_data['received']}/{jc_data['ordered']} pcs)")
-		created.append(doc.name)
+		try:
+			doc = frappe.get_doc({
+				"doctype": "Artisan Job Card",
+				"export_order": export_order,
+				"artisan": artisan_docname,
+				"piece_rate_inr": jc_data["piece_rate"],
+				"qty_ordered": jc_data["ordered"],
+				"qty_received": jc_data["received"],
+				"qty_rejected": jc_data["rejected"],
+				"raw_materials_issued": materials,
+			})
+			doc.insert(ignore_permissions=True)
+			print(f"  📝 Created Job Card for {jc_data['artisan_name']} ({jc_data['received']}/{jc_data['ordered']} pcs)")
+			created.append(doc.name)
+		except Exception as e:
+			print(f"  ⚠️  Could not create job card for {jc_data['artisan_name']}: {e}")
 
 	frappe.db.commit()
 	return created
 
 
 # ═══════════════════════════════════════════════════════
-#  10. Batch Quality Records
+#  11. Batch Quality Records
 # ═══════════════════════════════════════════════════════
 
 def ensure_batch_qc(job_cards):
 	"""Ensure Batch Quality Records exist."""
 	if not job_cards:
+		print("  ⚠️  No job cards to create QC records for")
 		return
 
 	qc_data = [
-		{"job_card_idx": 0, "status": "Pass", "notes": "Excellent craftsmanship. All pieces meet export quality standards."},
-		{"job_card_idx": 1, "status": "Rework", "notes": "One piece has minor surface scratches. Returned for polishing."},
-		{"job_card_idx": 2, "status": "Pass", "notes": "Good glaze consistency. Color uniformity is satisfactory."},
-		{"job_card_idx": 3, "status": "Pass", "notes": "Embroidery work is outstanding. No defects found."},
-		{"job_card_idx": 4, "status": "Rework", "notes": "Three boxes have uneven varnish. Sent back for refinishing."},
-		{"job_card_idx": 5, "status": "Pass", "notes": "All tea set pieces are well-formed. Packaging is sturdy."},
+		(0, "Pass", "Excellent craftsmanship. All pieces meet export quality standards."),
+		(1, "Rework", "One piece has minor surface scratches. Returned for polishing."),
+		(2, "Pass", "Good glaze consistency. Color uniformity is satisfactory."),
+		(3, "Pass", "Embroidery work is outstanding. No defects found."),
+		(4, "Rework", "Three boxes have uneven varnish. Sent back for refinishing."),
+		(5, "Pass", "All tea set pieces are well-formed. Packaging is sturdy."),
 	]
 
-	for qc in qc_data:
-		idx = qc["job_card_idx"]
+	for idx, status, notes in qc_data:
 		if idx >= len(job_cards):
 			continue
 
 		job_card = job_cards[idx]
 
-		# Skip if QC record already exists for this job card
 		if frappe.db.exists("Batch Quality Record", {"job_card": job_card}):
 			print(f"  🔍 QC Record already exists for Job Card {job_card}")
 			continue
 
-		# Fetch artisan from job card
-		jc_doc = frappe.get_doc("Artisan Job Card", job_card)
-
-		doc = frappe.get_doc({
-			"doctype": "Batch Quality Record",
-			"job_card": job_card,
-			"qc_status": qc["status"],
-			"inspector_notes": qc["notes"],
-		})
-		doc.insert(ignore_permissions=True)
-		print(f"  🔍 Created QC Record: {qc['status']} — {doc.name}")
+		try:
+			doc = frappe.get_doc({
+				"doctype": "Batch Quality Record",
+				"job_card": job_card,
+				"qc_status": status,
+				"inspector_notes": notes,
+			})
+			doc.insert(ignore_permissions=True)
+			print(f"  🔍 Created QC Record: {status} — {doc.name}")
+		except Exception as e:
+			print(f"  ⚠️  Could not create QC record for job card {job_card}: {e}")
