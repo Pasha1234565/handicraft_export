@@ -54,9 +54,10 @@ def _grant_read_permission(doctype, roles):
 			"name",
 		)
 		if existing:
-			# Update existing DocPerm to grant read access
+			# Update existing DocPerm to grant read + select access
 			frappe.db.set_value("DocPerm", existing, "read", 1)
-			print(f"  🔑 Granted read permission on {doctype} for {role_name}")
+			frappe.db.set_value("DocPerm", existing, "select", 1)
+			print(f"  🔑 Granted read+select permission on {doctype} for {role_name}")
 		else:
 			# Get next index for ordering
 			max_idx = frappe.db.sql("""
@@ -68,11 +69,11 @@ def _grant_read_permission(doctype, roles):
 			frappe.db.sql("""
 				INSERT INTO `tabDocPerm`
 				(`name`, `parent`, `parentfield`, `parenttype`,
-				 `role`, `read`, `idx`,
+				 `role`, `read`, `select`, `idx`,
 				 `creation`, `modified`, `modified_by`, `owner`, `docstatus`)
 				VALUES
 				(%s, %s, 'permissions', 'DocType',
-				 %s, 1, %s,
+				 %s, 1, 1, %s,
 				 NOW(), NOW(), 'Administrator', 'Administrator', 0)
 			""", (
 				frappe.generate_hash(length=10),
@@ -80,4 +81,4 @@ def _grant_read_permission(doctype, roles):
 				role_name,
 				max_idx + 1,
 			))
-			print(f"  🔑 Granted read permission on {doctype} for {role_name}")
+			print(f"  🔑 Granted read+select permission on {doctype} for {role_name}")
