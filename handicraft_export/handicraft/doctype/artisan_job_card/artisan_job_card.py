@@ -40,26 +40,34 @@ class ArtisanJobCard(Document):
 				"Please set one before submitting the Job Card."
 			)
 
-		# Fetch default expense account from the company
-		company = frappe.defaults.get_user_default("Company") or frappe.db.get_single_value("Global Defaults", "default_company")
-		expense_account = None
-		if company:
-			expense_account = frappe.db.get_value(
-				"Company", company, "default_expense_account"
+		# Fetch the default company
+		company = (
+			frappe.defaults.get_user_default("Company")
+			or frappe.db.get_single_value("Global Defaults", "default_company")
+		)
+		if not company:
+			frappe.throw(
+				"Please set a default Company in Global Defaults or in your user settings "
+				"before submitting an Artisan Job Card."
 			)
 
-		# Fallback: try to find any Cost of Goods Sold account
+		# Fetch default expense account from the company
+		expense_account = frappe.db.get_value(
+			"Company", company, "default_expense_account"
+		)
+
+		# Fallback: try to find any Cost of Goods Sold account for this company
 		if not expense_account:
 			expense_account = frappe.db.get_value(
 				"Account",
-				{"account_type": "Cost of Goods Sold", "is_group": 0},
+				{"account_type": "Cost of Goods Sold", "company": company, "is_group": 0},
 				"name",
 			)
 
 		# If still no expense account, throw a clear error
 		if not expense_account:
 			frappe.throw(
-				"Could not find a default expense account for this Purchase Invoice. "
+				f"Could not find a default expense account for Company '{company}'. "
 				"Please set 'default_expense_account' on your Company record, "
 				"or create a 'Cost of Goods Sold' type account."
 			)
@@ -74,14 +82,13 @@ class ArtisanJobCard(Document):
 			),
 			"qty": self.qty_received,
 			"rate": self.piece_rate_inr,
+			"expense_account": expense_account,
 		}
-
-		if expense_account:
-			item_row["expense_account"] = expense_account
 
 		pi = frappe.get_doc({
 			"doctype": "Purchase Invoice",
 			"supplier": linked_supplier,
+			"company": company,
 			"posting_date": frappe.utils.today(),
 			"custom_artisan_job_card": self.name,
 			"items": [item_row],
