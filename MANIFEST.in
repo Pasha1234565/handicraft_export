@@ -7,4 +7,5 @@ include handicraft_export/handicraft/report/*/*.js
 include handicraft_export/handicraft/report/*/*.py
 include handicraft_export/handicraft/notification/*/*.json
 include handicraft_export/handicraft/workspace/*/*.json
-include handicraft_export/public/*
+include handicraft_export/handicraft_export/public/js/*.js
+include handicraft_export/handicraft_export/public/css/*.css
