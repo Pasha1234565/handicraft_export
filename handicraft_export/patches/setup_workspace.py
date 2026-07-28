@@ -24,13 +24,8 @@ don't exist yet at migration time, it logs a warning and skips rather than
 		"label": workspace_name,
 		"module": "Handicraft",
 		"is_standard": 1,
-		"charts": [
-			{
-				"label": "Artisan Yield",
-				"chart_name": "Artisan Yield",
-				"type": "Bar",
-			}
-		],
+		# Charts section intentionally empty — add custom charts later
+		"charts": [],
 		"links": [
 			{
 				"label": "Pre-Sales",
@@ -166,7 +161,6 @@ don't exist yet at migration time, it logs a warning and skips rather than
 		workspace.insert(ignore_permissions=True)
 		frappe.db.commit()
 	except frappe.LinkValidationError as e:
-		frappe.db.rollback()
 		frappe.log_error(
 			message=f"Workspace '{workspace_name}' skipped: {e}",
 			title="Workspace Creation Deferred",

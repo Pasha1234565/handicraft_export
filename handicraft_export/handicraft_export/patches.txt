@@ -4,4 +4,3 @@ handicraft_export.patches.create_handicraft_export_module.execute
 [post_model_sync]
 handicraft_export.patches.create_roles.execute
 handicraft_export.patches.create_custom_fields.execute
-handicraft_export.patches.setup_workspace.execute
