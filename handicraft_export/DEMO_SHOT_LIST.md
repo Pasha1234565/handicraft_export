@@ -1,4 +1,4 @@
-# Handicraft Export — Demo Video Shot List
+# Handicraft Export — Demo Video Shots List
 
 **📋 For the video editor / screen recorder.** Each row = one shot/scene.
 **Duration:** ~12 min total
